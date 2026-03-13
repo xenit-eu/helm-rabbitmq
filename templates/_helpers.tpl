@@ -60,3 +60,44 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{/*
+Create the name of the headless service to use
+*/}}
+{{- define "helm-rabbitmq.headlessServiceName" -}}
+{{- ((include "helm-rabbitmq.fullname" .) | trunc 56) | trimSuffix "-" }}-headless
+{{- end }}
+
+{{/*
+Create the image reference to use
+*/}}
+{{- define "helm-rabbitmq.image" -}}
+{{- $tail := printf ":%s" .Chart.AppVersion | toString -}}
+{{- if .Values.image.tag -}}
+    {{- $tail = printf ":%s" .Values.image.tag -}}
+{{- end -}}
+{{- if .Values.image.digest -}}
+    {{- $tail = printf "@%s" .Values.image.digest -}}
+{{- end -}}
+{{- printf "%s%s" .Values.image.repository $tail -}}
+{{- end }}
+
+{{- define "helm-rabbitmq.bootstrap.name" -}}
+{{- (include "helm-rabbitmq.fullname" .) | trunc 53 | trimSuffix "-" }}-bootstrap
+{{- end }}
+
+{{- define "helm-rabbitmq.bootstrap.metadata" -}}
+metadata:
+  name: {{ include "helm-rabbitmq.bootstrap.name" . }}
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+  labels:
+    {{- include "helm-rabbitmq.bootstrap.selectorLabels" . | nindent 4 }}
+{{- end }}
+
+{{- define "helm-rabbitmq.bootstrap.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "helm-rabbitmq.bootstrap.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}

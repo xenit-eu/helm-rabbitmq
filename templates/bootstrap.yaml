@@ -1,0 +1,103 @@
+apiVersion: v1
+kind: ServiceAccount
+{{ include "helm-rabbitmq.bootstrap.metadata" . }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+{{ include "helm-rabbitmq.bootstrap.metadata" . }}
+rules:
+- apiGroups:
+    - ""
+  resources:
+    - secrets
+  verbs:
+    - create
+- apiGroups:
+    - ""
+  resources:
+    - secrets
+  verbs:
+    - get
+  resourceNames:
+    - {{ include "helm-rabbitmq.fullname" . }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+{{ include "helm-rabbitmq.bootstrap.metadata" . }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ include "helm-rabbitmq.bootstrap.name" . }}
+subjects:
+- kind: ServiceAccount
+  name: {{ include "helm-rabbitmq.bootstrap.name" . }}
+---
+apiVersion: batch/v1
+kind: Job
+{{ include "helm-rabbitmq.bootstrap.metadata" . }}
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+      serviceAccountName: {{ include "helm-rabbitmq.bootstrap.name" . }}
+      containers:
+        - name: bootstrap-rabbitmq
+          image: ghcr.io/xenit-eu/kubectl
+          command:
+            - /bin/bash
+            - -c
+            - |
+              set -euo pipefail
+              if ! kubectl get secret "{{ include "helm-rabbitmq.fullname" . }}" > /dev/null; then
+                kubectl create secret generic "{{ include "helm-rabbitmq.fullname" . }}" --from-literal="password={{ randAlphaNum 16 }}" --from-literal="erlang-cookie={{ randAlphaNum 32 }}"
+              fi
+{{- if .Values.networkPolicy.enabled }}
+{{- $hasCilium := .Capabilities.APIVersions.Has "cilium.io/v2" }}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+{{ include "helm-rabbitmq.bootstrap.metadata" . }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "helm-rabbitmq.bootstrap.selectorLabels" . | nindent 6 }}
+  policyTypes:
+    - Egress
+  egress:
+    # DNS resolution
+    - ports:
+        - port: 53
+          protocol: UDP
+        - port: 53
+          protocol: TCP
+      to:
+        - namespaceSelector: {}
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+    # kube-apiserver
+    {{- if and (not $hasCilium) .Values.networkPolicy.kubeAPIServerCIDRs .Values.networkPolicy.kubeAPIServerPorts }}
+    - ports:
+      {{- range .Values.networkPolicy.kubeAPIServerPorts }}
+        - port: {{ . }}
+      {{- end }}
+      to:
+      {{- range .Values.networkPolicy.kubeAPIServerCIDRs }}
+        - ipBlock:
+            cidr: {{ . }}
+      {{- end }}
+    {{- end }}
+---
+{{ if $hasCilium }}
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+{{ include "helm-rabbitmq.bootstrap.metadata" . }}
+spec:
+  endpointSelector:
+    matchLabels:
+      {{- include "helm-rabbitmq.bootstrap.selectorLabels" . | nindent 6 }}
+  egress:
+    - toEntities:
+        - kube-apiserver
+{{- end }}
+{{- end }}

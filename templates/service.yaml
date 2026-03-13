@@ -5,11 +5,14 @@ metadata:
   labels:
     {{- include "helm-rabbitmq.labels" . | nindent 4 }}
 spec:
-  type: {{ .Values.service.type }}
   ports:
-    - port: {{ .Values.service.port }}
-      targetPort: http
+    - name: amqp
+      port: 5672
+      targetPort: amqp
       protocol: TCP
-      name: http
+    - name: management
+      port: 15672
+      targetPort: management
+      protocol: TCP
   selector:
     {{- include "helm-rabbitmq.selectorLabels" . | nindent 4 }}
