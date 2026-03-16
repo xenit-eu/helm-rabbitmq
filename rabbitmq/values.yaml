@@ -89,7 +89,7 @@ persistence:
 
 # Configuration for the bootstrap job that creates the RabbitMQ credentials secret.
 bootstrap:
-  enabled: true # Disable bootstrapping RabbitMQ secrets. You will have to create the secret yourself
+  enabled: true # Set to false to disable bootstrapping RabbitMQ secrets. You will have to create the secret yourself
   image:
     repository: ghcr.io/xenit-eu/kubectl
     tag: latest

@@ -146,4 +146,4 @@ spec:
   clusterIP: None
   publishNotReadyAddresses: true
   selector:
-    {{- include "rabbitmq.labels" . | nindent 4 }}
+    {{- include "rabbitmq.selectorLabels" . | nindent 4 }}
