@@ -40,11 +40,20 @@ public abstract class AbstractHelmIntegrationTest {
                 .get();
         var apiServerCidr = kubernetesSvc.getSpec().getClusterIP() + "/32";
 
+        // Also include the actual endpoint IP: kube-router enforces NetworkPolicies
+        // post-DNAT, so the post-NAT destination (node IP) must also be allowed.
+        var kubernetesEndpoints = kubernetesClient.endpoints()
+                .inNamespace("default")
+                .withName("kubernetes")
+                .get();
+        var endpointCidr = kubernetesEndpoints.getSubsets().get(0).getAddresses().get(0).getIp() + "/32";
+
         var result = rabbitmq.install(
                 InstallOption.createNamespace(),
                 InstallOption.values(Map.of(
                         "persistence.size", "1Gi",
-                        "networkPolicy.kubeAPIServerCIDRs[0]", apiServerCidr
+                        "networkPolicy.kubeAPIServerCIDRs[0]", apiServerCidr,
+                        "networkPolicy.kubeAPIServerCIDRs[1]", endpointCidr
                 ))
         );
 
