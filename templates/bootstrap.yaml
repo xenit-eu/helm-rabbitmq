@@ -38,6 +38,9 @@ kind: Job
 {{ include "helm-rabbitmq.bootstrap.metadata" . }}
 spec:
   template:
+    metadata:
+      labels:
+        {{- include "helm-rabbitmq.bootstrap.selectorLabels" . | nindent 8 }}
     spec:
       restartPolicy: Never
       serviceAccountName: {{ include "helm-rabbitmq.bootstrap.name" . }}
@@ -61,7 +64,14 @@ spec:
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
-{{ include "helm-rabbitmq.bootstrap.metadata" . }}
+metadata:
+  name: {{ include "helm-rabbitmq.bootstrap.name" . }}
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "-10"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+  labels:
+    {{- include "helm-rabbitmq.bootstrap.selectorLabels" . | nindent 4 }}
 spec:
   podSelector:
     matchLabels:
@@ -96,7 +106,14 @@ spec:
 {{ if $hasCilium }}
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
-{{ include "helm-rabbitmq.bootstrap.metadata" . }}
+metadata:
+  name: {{ include "helm-rabbitmq.bootstrap.name" . }}
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "-10"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+  labels:
+    {{- include "helm-rabbitmq.bootstrap.selectorLabels" . | nindent 4 }}
 spec:
   endpointSelector:
     matchLabels:
