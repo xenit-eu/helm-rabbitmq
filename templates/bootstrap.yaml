@@ -1,3 +1,4 @@
+{{- if .Values.bootstrap.enabled -}}
 apiVersion: v1
 kind: ServiceAccount
 {{ include "helm-rabbitmq.bootstrap.metadata" . }}
@@ -42,7 +43,11 @@ spec:
       serviceAccountName: {{ include "helm-rabbitmq.bootstrap.name" . }}
       containers:
         - name: bootstrap-rabbitmq
-          image: ghcr.io/xenit-eu/kubectl
+          image: {{ .Values.bootstrap.image.repository }}:{{ .Values.bootstrap.image.tag }}
+          {{- with .Values.bootstrap.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           command:
             - /bin/bash
             - -c
@@ -99,5 +104,6 @@ spec:
   egress:
     - toEntities:
         - kube-apiserver
+{{- end }}
 {{- end }}
 {{- end }}
