@@ -95,6 +95,8 @@ spec:
             - name: rabbitmq-data
               mountPath: /var/lib/rabbitmq
             - name: rabbitmq-config
+              # This mounts the full configMap, including enabled_plugins.
+              # This is fine, because rabbitmq only loads files ending in *.conf from this directory
               mountPath: /etc/rabbitmq/conf.d/
             - name: rabbitmq-config
               mountPath: /etc/rabbitmq/enabled_plugins
