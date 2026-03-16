@@ -105,6 +105,16 @@ bootstrap:
 # RabbitMQ configuration file content, injected via ConfigMap.
 configuration: ""
 
+podDisruptionBudget:
+  # Enable a PodDisruptionBudget for the RabbitMQ StatefulSet.
+  enabled: true
+  # Minimum number of pods that must be available during disruptions.
+  # Mutually exclusive with maxUnavailable.
+  # minAvailable: 1
+  # Maximum number of pods that can be unavailable during disruptions.
+  # Mutually exclusive with minAvailable.
+  maxUnavailable: 1
+
 networkPolicy:
   # Enable network policies
   enabled: true

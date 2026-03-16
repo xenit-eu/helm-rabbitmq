@@ -60,6 +60,14 @@ Helm chart for deploying RabbitMQ as a StatefulSet on Kubernetes.
 | `bootstrap.image.tag` | Bootstrap job image tag | `latest` |
 | `bootstrap.resources` | Resource requests and limits for the bootstrap container | `{}` |
 
+### Pod disruption budget
+
+| Key | Description | Default |
+|---|---|---|
+| `podDisruptionBudget.enabled` | Enable a PodDisruptionBudget for the StatefulSet | `true` |
+| `podDisruptionBudget.minAvailable` | Minimum number of pods that must remain available during disruptions; mutually exclusive with `maxUnavailable` | not set |
+| `podDisruptionBudget.maxUnavailable` | Maximum number of pods that can be unavailable during disruptions; mutually exclusive with `minAvailable` | `1` |
+
 ### Network policies
 
 | Key | Description | Default |
