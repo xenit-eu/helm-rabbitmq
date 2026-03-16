@@ -1,16 +1,16 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: {{ include "helm-rabbitmq.fullname" . }}
+  name: {{ include "rabbitmq.fullname" . }}
   labels:
-    {{- include "helm-rabbitmq.labels" . | nindent 4 }}
+    {{- include "rabbitmq.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
-  serviceName: {{ include "helm-rabbitmq.headlessServiceName" . }}
+  serviceName: {{ include "rabbitmq.headlessServiceName" . }}
   podManagementPolicy: Parallel
   selector:
     matchLabels:
-      {{- include "helm-rabbitmq.selectorLabels" . | nindent 6 }}
+      {{- include "rabbitmq.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -18,7 +18,7 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "helm-rabbitmq.labels" . | nindent 8 }}
+        {{- include "rabbitmq.labels" . | nindent 8 }}
         {{- with .Values.podLabels }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
@@ -27,7 +27,7 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ include "helm-rabbitmq.serviceAccountName" . }}
+      serviceAccountName: {{ include "rabbitmq.serviceAccountName" . }}
       {{- with .Values.podSecurityContext }}
       securityContext:
         {{- toYaml . | nindent 8 }}
@@ -39,7 +39,7 @@ spec:
           securityContext:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          image: {{ include "helm-rabbitmq.image" . }}
+          image: {{ include "rabbitmq.image" . }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: amqp
@@ -61,11 +61,11 @@ spec:
             - name: RABBITMQ_USE_LONGNAME
               value: "true"
             - name: RABBITMQ_NODENAME
-              value: "rabbit@$(MY_POD_NAME).{{ include "helm-rabbitmq.headlessServiceName" . }}.$(MY_POD_NAMESPACE).svc.cluster.local"
+              value: "rabbit@$(MY_POD_NAME).{{ include "rabbitmq.headlessServiceName" . }}.$(MY_POD_NAMESPACE).svc.cluster.local"
             - name: K8S_SERVICE_NAME
-              value: {{ include "helm-rabbitmq.headlessServiceName" . }}
+              value: {{ include "rabbitmq.headlessServiceName" . }}
             - name: K8S_HOSTNAME_SUFFIX
-              value: ".{{ include "helm-rabbitmq.headlessServiceName" . }}.$(MY_POD_NAMESPACE).svc.cluster.local"
+              value: ".{{ include "rabbitmq.headlessServiceName" . }}.$(MY_POD_NAMESPACE).svc.cluster.local"
             - name: RABBITMQ_LOGS
               value: "-" # Logs to stdout only
             - name: RABBITMQ_DEFAULT_USER
@@ -73,12 +73,12 @@ spec:
             - name: RABBITMQ_DEFAULT_PASS
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "helm-rabbitmq.fullname" . }}
+                  name: {{ include "rabbitmq.fullname" . }}
                   key: password
             - name: RABBITMQ_ERLANG_COOKIE
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "helm-rabbitmq.fullname" . }}
+                  name: {{ include "rabbitmq.fullname" . }}
                   key: erlang-cookie
           lifecycle:
             preStop:
@@ -105,7 +105,7 @@ spec:
       volumes:
         - name: rabbitmq-config
           configMap:
-            name: {{ include "helm-rabbitmq.fullname" . }}-config
+            name: {{ include "rabbitmq.fullname" . }}-config
       {{- with .Values.additionalVolumes }}
         {{- toYaml . | nindent 8 }}
       {{- end }}
@@ -125,7 +125,7 @@ spec:
     - metadata:
         name: rabbitmq-data
         labels:
-          {{- include "helm-rabbitmq.labels" . | nindent 14 }}
+          {{- include "rabbitmq.labels" . | nindent 14 }}
       spec:
         accessModes: ["ReadWriteOnce"]
         {{- with .Values.persistence.storageClassName }}
@@ -139,11 +139,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "helm-rabbitmq.headlessServiceName" . }}
+  name: {{ include "rabbitmq.headlessServiceName" . }}
   labels:
-    {{- include "helm-rabbitmq.labels" . | nindent 4 }}
+    {{- include "rabbitmq.labels" . | nindent 4 }}
 spec:
   clusterIP: None
   publishNotReadyAddresses: true
   selector:
-    {{- include "helm-rabbitmq.labels" . | nindent 4 }}
+    {{- include "rabbitmq.labels" . | nindent 4 }}

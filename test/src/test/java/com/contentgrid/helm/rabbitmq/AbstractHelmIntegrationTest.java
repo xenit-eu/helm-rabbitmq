@@ -27,7 +27,7 @@ public abstract class AbstractHelmIntegrationTest {
     static String NAMESPACE;
     static String FULLNAME;
 
-    @HelmChart(chart = "file:../")
+    @HelmChart(chart = "file:../rabbitmq")
     static HelmChartHandle rabbitmq;
 
     static KubernetesClient kubernetesClient;
@@ -58,7 +58,7 @@ public abstract class AbstractHelmIntegrationTest {
         );
 
         NAMESPACE = result.namespace();
-        FULLNAME = result.name() + "-helm-rabbitmq";
+        FULLNAME = result.name() + "-rabbitmq";
 
 
         new KubernetesResourceWaiter(kubernetesClient)
@@ -99,7 +99,7 @@ public abstract class AbstractHelmIntegrationTest {
     void pods_areRunningAndReady() {
         var pods = kubernetesClient.pods()
                 .inNamespace(NAMESPACE)
-                .withLabel("app.kubernetes.io/name", "helm-rabbitmq")
+                .withLabel("app.kubernetes.io/name", "rabbitmq")
                 .list()
                 .getItems();
         assertThat(pods).hasSize(3);

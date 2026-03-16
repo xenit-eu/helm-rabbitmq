@@ -1,9 +1,9 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "helm-rabbitmq.fullname" . }}
+  name: {{ include "rabbitmq.fullname" . }}
   labels:
-    {{- include "helm-rabbitmq.labels" . | nindent 4 }}
+    {{- include "rabbitmq.labels" . | nindent 4 }}
 spec:
   ports:
     - name: amqp
@@ -15,4 +15,4 @@ spec:
       targetPort: management
       protocol: TCP
   selector:
-    {{- include "helm-rabbitmq.selectorLabels" . | nindent 4 }}
+    {{- include "rabbitmq.selectorLabels" . | nindent 4 }}

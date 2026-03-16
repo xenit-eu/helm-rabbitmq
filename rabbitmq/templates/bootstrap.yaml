@@ -1,11 +1,11 @@
 {{- if .Values.bootstrap.enabled -}}
 apiVersion: v1
 kind: ServiceAccount
-{{ include "helm-rabbitmq.bootstrap.metadata" . }}
+{{ include "rabbitmq.bootstrap.metadata" . }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
-{{ include "helm-rabbitmq.bootstrap.metadata" . }}
+{{ include "rabbitmq.bootstrap.metadata" . }}
 rules:
 - apiGroups:
     - ""
@@ -20,30 +20,30 @@ rules:
   verbs:
     - get
   resourceNames:
-    - {{ include "helm-rabbitmq.fullname" . }}
+    - {{ include "rabbitmq.fullname" . }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
-{{ include "helm-rabbitmq.bootstrap.metadata" . }}
+{{ include "rabbitmq.bootstrap.metadata" . }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: {{ include "helm-rabbitmq.bootstrap.name" . }}
+  name: {{ include "rabbitmq.bootstrap.name" . }}
 subjects:
 - kind: ServiceAccount
-  name: {{ include "helm-rabbitmq.bootstrap.name" . }}
+  name: {{ include "rabbitmq.bootstrap.name" . }}
 ---
 apiVersion: batch/v1
 kind: Job
-{{ include "helm-rabbitmq.bootstrap.metadata" . }}
+{{ include "rabbitmq.bootstrap.metadata" . }}
 spec:
   template:
     metadata:
       labels:
-        {{- include "helm-rabbitmq.bootstrap.selectorLabels" . | nindent 8 }}
+        {{- include "rabbitmq.bootstrap.selectorLabels" . | nindent 8 }}
     spec:
       restartPolicy: Never
-      serviceAccountName: {{ include "helm-rabbitmq.bootstrap.name" . }}
+      serviceAccountName: {{ include "rabbitmq.bootstrap.name" . }}
       containers:
         - name: bootstrap-rabbitmq
           image: {{ .Values.bootstrap.image.repository }}:{{ .Values.bootstrap.image.tag }}
@@ -56,8 +56,8 @@ spec:
             - -c
             - |
               set -euo pipefail
-              if ! kubectl get secret "{{ include "helm-rabbitmq.fullname" . }}" > /dev/null; then
-                kubectl create secret generic "{{ include "helm-rabbitmq.fullname" . }}" --from-literal="password={{ randAlphaNum 16 }}" --from-literal="erlang-cookie={{ randAlphaNum 32 }}"
+              if ! kubectl get secret "{{ include "rabbitmq.fullname" . }}" > /dev/null; then
+                kubectl create secret generic "{{ include "rabbitmq.fullname" . }}" --from-literal="password={{ randAlphaNum 16 }}" --from-literal="erlang-cookie={{ randAlphaNum 32 }}"
               fi
 {{- if .Values.networkPolicy.enabled }}
 {{- $hasCilium := .Capabilities.APIVersions.Has "cilium.io/v2" }}
@@ -65,17 +65,17 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: {{ include "helm-rabbitmq.bootstrap.name" . }}
+  name: {{ include "rabbitmq.bootstrap.name" . }}
   annotations:
     "helm.sh/hook": pre-install,pre-upgrade
     "helm.sh/hook-weight": "-10"
     "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
   labels:
-    {{- include "helm-rabbitmq.bootstrap.selectorLabels" . | nindent 4 }}
+    {{- include "rabbitmq.bootstrap.selectorLabels" . | nindent 4 }}
 spec:
   podSelector:
     matchLabels:
-      {{- include "helm-rabbitmq.bootstrap.selectorLabels" . | nindent 6 }}
+      {{- include "rabbitmq.bootstrap.selectorLabels" . | nindent 6 }}
   policyTypes:
     - Egress
   egress:
@@ -107,17 +107,17 @@ spec:
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
 metadata:
-  name: {{ include "helm-rabbitmq.bootstrap.name" . }}
+  name: {{ include "rabbitmq.bootstrap.name" . }}
   annotations:
     "helm.sh/hook": pre-install,pre-upgrade
     "helm.sh/hook-weight": "-10"
     "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
   labels:
-    {{- include "helm-rabbitmq.bootstrap.selectorLabels" . | nindent 4 }}
+    {{- include "rabbitmq.bootstrap.selectorLabels" . | nindent 4 }}
 spec:
   endpointSelector:
     matchLabels:
-      {{- include "helm-rabbitmq.bootstrap.selectorLabels" . | nindent 6 }}
+      {{- include "rabbitmq.bootstrap.selectorLabels" . | nindent 6 }}
   egress:
     - toEntities:
         - kube-apiserver

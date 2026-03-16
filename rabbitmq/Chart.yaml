@@ -1,5 +1,5 @@
 apiVersion: v2
-name: helm-rabbitmq
+name: rabbitmq
 description: A helm chart to deploy a RabbitMQ cluster
 
 type: application
