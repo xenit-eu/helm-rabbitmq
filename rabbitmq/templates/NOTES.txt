@@ -1,0 +1,12 @@
+RabbitMQ is starting up. It may take a few minutes for all nodes to become ready.
+
+Check the status of the StatefulSet:
+  kubectl get statefulset --namespace {{ .Release.Namespace }} {{ include "rabbitmq.fullname" . }}
+
+Access the management UI by port-forwarding:
+  kubectl port-forward --namespace {{ .Release.Namespace }} svc/{{ include "rabbitmq.fullname" . }} 15672:15672
+
+Then open http://localhost:15672 in your browser (default credentials: user / <password from secret>).
+
+Retrieve the password:
+  kubectl get secret --namespace {{ .Release.Namespace }} {{ include "rabbitmq.fullname" . }} -o jsonpath="{.data.password}" | base64 -d

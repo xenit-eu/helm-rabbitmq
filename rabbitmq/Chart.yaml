@@ -1,0 +1,10 @@
+apiVersion: v2
+name: rabbitmq
+description: A helm chart to deploy a RabbitMQ cluster
+
+type: application
+
+version: 0.1.0
+
+# This is the default version of RabbitMQ that is being deployed.
+appVersion: "3.13"
