@@ -36,6 +36,10 @@ spec:
       {{- if .Values.resetErlangCookiePermissions }}
       initContainers:
         - name: erlang-cookie
+          {{- with .Values.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           image: {{ include "rabbitmq.image" . }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command:
@@ -53,6 +57,10 @@ spec:
           volumeMounts:
             - name: rabbitmq-data
               mountPath: /var/lib/rabbitmq
+          {{- with .Values.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
       {{- end }}
       containers:
         - name: rabbitmq
