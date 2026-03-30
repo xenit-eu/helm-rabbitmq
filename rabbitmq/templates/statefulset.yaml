@@ -33,6 +33,27 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       enableServiceLinks: false
+      {{- if .Values.resetErlangCookiePermissions }}
+      initContainers:
+        - name: erlang-cookie
+          image: {{ include "rabbitmq.image" . }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - "sh"
+            - "-c"
+            - |
+                echo -n "${RABBITMQ_ERLANG_COOKIE}" > /var/lib/rabbitmq/.erlang.cookie
+                chmod 400 /var/lib/rabbitmq/.erlang.cookie
+          env:
+            - name: RABBITMQ_ERLANG_COOKIE
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmq
+                  key: erlang-cookie
+          volumeMounts:
+            - name: rabbitmq-data
+              mountPath: /var/lib/rabbitmq
+      {{- end }}
       containers:
         - name: rabbitmq
           {{- with .Values.securityContext }}
