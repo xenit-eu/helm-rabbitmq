@@ -7,4 +7,4 @@ type: application
 version: 0.1.0
 
 # This is the default version of RabbitMQ that is being deployed.
-appVersion: "3.13"
+appVersion: "4.2"
