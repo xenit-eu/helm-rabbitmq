@@ -40,7 +40,7 @@ Helm chart for deploying RabbitMQ as a StatefulSet on Kubernetes.
 | `resources` | Resource requests and limits for the RabbitMQ container | `{}` |
 | `nodeSelector` | Node selector for RabbitMQ pods | `{}` |
 | `tolerations` | Tolerations for RabbitMQ pods | `[]` |
-| `affinity` | Affinity rules for RabbitMQ pods | `{}` |
+| `affinity` | Affinity rules for RabbitMQ pods. `null`: default soft pod anti-affinity to spread pods across nodes. `{}`: no affinity rules. Custom object: used as-is. | `null` |
 | `additionalVolumes` | Extra volumes to add to the StatefulSet | `[]` |
 | `additionalVolumeMounts` | Extra volume mounts for the RabbitMQ container | `[]` |
 

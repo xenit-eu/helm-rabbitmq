@@ -79,7 +79,9 @@ nodeSelector: {}
 tolerations: []
 
 # Affinity rules for the RabbitMQ pods.
-affinity: {}
+# When null (default), a soft pod anti-affinity rule is applied to spread pods across nodes.
+# Set to {} to disable affinity rules entirely, or provide a custom affinity object.
+affinity: ~
 
 persistence:
   # Storage class for the RabbitMQ data volume. Defaults to the cluster default.
