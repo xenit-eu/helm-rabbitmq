@@ -104,11 +104,6 @@ spec:
                 secretKeyRef:
                   name: {{ include "rabbitmq.fullname" . }}
                   key: password
-            - name: RABBITMQ_ERLANG_COOKIE
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "rabbitmq.fullname" . }}
-                  key: erlang-cookie
           lifecycle:
             preStop:
               exec:
