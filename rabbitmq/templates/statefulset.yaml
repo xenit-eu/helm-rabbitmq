@@ -33,7 +33,8 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       enableServiceLinks: false
-      {{- if .Values.resetErlangCookiePermissions }}
+      # Erlang refuses to start up when permissions on the cookie are too broad: "Cookie file /var/lib/rabbitmq/.erlang.cookie must be accessible by owner only"
+      # Some OpenShift Security Context Constraints automatically set group bits for new files, so we use an initContainer to write and chmod the cookie file.
       initContainers:
         - name: erlang-cookie
           {{- with .Values.securityContext }}
@@ -52,7 +53,7 @@ spec:
             - name: RABBITMQ_ERLANG_COOKIE
               valueFrom:
                 secretKeyRef:
-                  name: rabbitmq
+                  name: {{ include "rabbitmq.fullname" . }}
                   key: erlang-cookie
           volumeMounts:
             - name: rabbitmq-data
@@ -61,7 +62,6 @@ spec:
           resources:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-      {{- end }}
       containers:
         - name: rabbitmq
           {{- with .Values.securityContext }}

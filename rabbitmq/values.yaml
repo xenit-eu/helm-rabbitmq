@@ -123,9 +123,3 @@ networkPolicy:
   kubeAPIServerCIDRs: []
   # Ports the kube-apiserver listens on.
   kubeAPIServerPorts: [443, 6443, 8443]
-
-# Erlang refuses to start up when permissions on the cookie are too broad: "Cookie file /var/lib/rabbitmq/.erlang.cookie must be accessible by owner only"
-# However, some OpenShift Security Context Constraints might automatically set group bits for new files.
-# Set this property to true to have an initContainer create and chmod the cookie file.
-resetErlangCookiePermissions: false
-
