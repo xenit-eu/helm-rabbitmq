@@ -160,8 +160,6 @@ spec:
   volumeClaimTemplates:
     - metadata:
         name: rabbitmq-data
-        labels:
-          {{- include "rabbitmq.labels" . | nindent 14 }}
       spec:
         accessModes: ["ReadWriteOnce"]
         {{- with .Values.persistence.storageClassName }}
