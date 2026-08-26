@@ -7,7 +7,7 @@ image:
   # This sets the pull policy for images.
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: ""
+  tag: "@sha256:9d39258795e314bec0a204db15cc0b8770590ae983d88efacf159c766b1e539d"
   # Sets the digest for the image
   digest: ~
 
@@ -94,7 +94,7 @@ bootstrap:
   enabled: true # Set to false to disable bootstrapping RabbitMQ secrets. You will have to create the secret yourself
   image:
     repository: ghcr.io/xenit-eu/kubectl
-    tag: latest
+    tag: latest@sha256:448b17dbae998ebe2a8c62324a244149116eebf2b3370e935258952f54247947
   # Resource requests and limits for the bootstrap job container.
   resources: {}
   # limits:
