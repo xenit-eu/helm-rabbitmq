@@ -2,5 +2,14 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "github>xenit-eu/contentgrid-renovate-presets:renovate.json"
+  ],
+  "packageRules": [
+    {
+      "description": "Do not pin docker image digests. The charts that pull in this chart as a dependency are responsible for managing and pinning the versions if they so desire.",
+      "matchDatasources": [
+        "docker"
+      ],
+      "pinDigests": false
+    }
   ]
 }
